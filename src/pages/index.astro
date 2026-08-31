@@ -494,6 +494,7 @@ import Layout from '../layouts/Layout.astro';
     panels.forEach(p=>p.classList.toggle('active', p.id===id));
     window.scrollTo({top:0,behavior:'smooth'});
   }
+  window.goTab = goTab;
   bnav.forEach(t=>t.addEventListener('click',()=>goTab(t.dataset.tab)));
 
   // Book a call: open Contact and pre-select that service
@@ -510,6 +511,7 @@ import Layout from '../layouts/Layout.astro';
       });
     },420);
   }
+  window.bookCall = bookCall;
 
   // Read more / less on team bios
   function toggleBio(btn){
@@ -517,6 +519,7 @@ import Layout from '../layouts/Layout.astro';
     const open=clip.classList.toggle('open');
     btn.textContent = open ? 'Read less' : 'Read more';
   }
+  window.toggleBio = toggleBio;
 
   // Multi-select visual state
   document.addEventListener('change', e=>{
