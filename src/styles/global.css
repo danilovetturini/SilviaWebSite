@@ -670,9 +670,9 @@
   .team-group:first-of-type{margin-top:0;}
   .team-group h3{
     font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;
-    color:var(--navy);white-space:nowrap;
+    color:var(--navy);line-height:1.2;
   }
-  .team-group::after{content:"";flex:1;height:1px;background:rgba(31,58,95,.14);}
+  .team-group::after{content:"";flex:1;min-width:24px;height:1px;background:rgba(31,58,95,.14);}
 
   /* --- Services: pillar cards --- */
   #services .card{display:flex;flex-direction:column;}
