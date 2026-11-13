@@ -422,27 +422,27 @@ import Layout from '../layouts/Layout.astro';
         <div class="field-row">
           <div class="field">
             <label for="f-first">First name <span class="req">*</span></label>
-            <input id="f-first" type="text" autocomplete="given-name" required>
+            <input id="f-first" maxlength="100" type="text" autocomplete="given-name" required>
           </div>
           <div class="field">
             <label for="f-last">Last name <span class="req">*</span></label>
-            <input id="f-last" type="text" autocomplete="family-name" required>
+            <input id="f-last" maxlength="100" type="text" autocomplete="family-name" required>
           </div>
         </div>
 
         <div class="field">
           <label for="f-company">Company name</label>
-          <input id="f-company" type="text" autocomplete="organization">
+          <input id="f-company" maxlength="200" type="text" autocomplete="organization">
         </div>
 
         <div class="field">
           <label for="f-phone">Phone number <span class="req">*</span></label>
-          <input id="f-phone" type="tel" autocomplete="tel" required>
+          <input id="f-phone" maxlength="50" type="tel" autocomplete="tel" required>
         </div>
 
         <div class="field">
           <label for="f-email">Email <span class="req">*</span></label>
-          <input id="f-email" type="email" autocomplete="email" required>
+          <input id="f-email" maxlength="254" type="email" autocomplete="email" required>
         </div>
 
         <div class="field">
@@ -458,7 +458,7 @@ import Layout from '../layouts/Layout.astro';
 
         <div class="field">
           <label for="f-msg">Add a message or tell us more about what you need</label>
-          <textarea id="f-msg"></textarea>
+          <textarea id="f-msg" maxlength="5000"></textarea>
         </div>
 
         <label class="checkbox"><input id="f-news" type="checkbox"> Yes, subscribe me to your newsletter.</label>
@@ -631,8 +631,8 @@ import Layout from '../layouts/Layout.astro';
     const browser=(navigator.language||'en').toLowerCase().startsWith('it') ? 'it' : 'en';
     setLang(saved || browser);
   })();
-  /* ---------- Contact form -> info@purposebridge.it (via FormSubmit) ---------- */
-  const FORM_ENDPOINT = 'https://formsubmit.co/ajax/info@purposebridge.it';
+  /* ---------- Contact form -> Azure Functions / ACS ---------- */
+  const FORM_ENDPOINT = '/api/send-email';
   Object.assign(IT_DICT, {
     "Please fill in the highlighted fields.":"Compila i campi evidenziati.",
     "Please enter a valid email address.":"Inserisci un indirizzo email valido.",
@@ -659,6 +659,7 @@ import Layout from '../layouts/Layout.astro';
   function val(id){ return (document.getElementById(id).value || '').trim(); }
 
   async function sendInquiry(){
+    if(document.getElementById('f-submit').disabled) return;
     const need=['f-first','f-last','f-phone','f-email'];
     document.querySelectorAll('.field.invalid').forEach(f=>f.classList.remove('invalid'));
     const missing=need.filter(id=>!val(id));
@@ -670,24 +671,23 @@ import Layout from '../layouts/Layout.astro';
     }
     const practices=[...document.querySelectorAll('#svcOptions input:checked')].map(b=>b.value);
     const payload={
-      _subject: 'New enquiry from the Purpose Bridge website — ' + val('f-first') + ' ' + val('f-last'),
-      _template: 'table',
-      _honey: val('f-honey'),
-      Name: val('f-first') + ' ' + val('f-last'),
-      Company: val('f-company') || '—',
-      Phone: val('f-phone'),
+      honey: val('f-honey'),
+      firstName: val('f-first'),
+      lastName: val('f-last'),
+      company: val('f-company'),
+      phone: val('f-phone'),
       email: val('f-email'),
-      Practices: practices.length ? practices.join(', ') : 'Not specified',
-      Message: val('f-msg') || '—',
-      Newsletter: document.getElementById('f-news').checked ? 'Yes' : 'No',
-      'Site language': LANG === 'it' ? 'Italian' : 'English'
+      services: practices,
+      message: val('f-msg'),
+      newsletter: document.getElementById('f-news').checked,
+      language: LANG === 'it' ? 'it' : 'en'
     };
     const btn=document.getElementById('f-submit');
     btn.disabled=true; showStatus('info','Sending your request…');
     try{
       const r=await fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)});
       const d=await r.json().catch(()=>({}));
-      if(!r.ok || String(d.success)==='false') throw new Error(d.message||r.status);
+      if(!r.ok || d.success !== true) throw new Error(d.message||r.status);
       showStatus('ok',"Thank you — your request has been sent. We'll be in touch shortly.");
       ['f-first','f-last','f-company','f-phone','f-email','f-msg'].forEach(id=>document.getElementById(id).value='');
       document.querySelectorAll('#svcOptions input, #f-news').forEach(b=>{b.checked=false; const o=b.closest('.opt'); if(o) o.classList.remove('sel');});

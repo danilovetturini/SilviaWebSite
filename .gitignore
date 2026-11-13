@@ -25,3 +25,5 @@ pnpm-debug.log*
 
 # Visual Studio local settings
 .vs/
+
+api/local.settings.json
