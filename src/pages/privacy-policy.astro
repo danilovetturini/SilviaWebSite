@@ -7,10 +7,14 @@ import Layout from '../layouts/Layout.astro';
     <a class="brand" href="/" aria-label="Purpose Bridge — Torna alla home">
       <img src="/images/image_6.png" alt="Purpose Bridge">
     </a>
+    <div class="lang-switch" role="group" aria-label="Lingua">
+      <button type="button" data-lang="en" lang="en" aria-pressed="false">EN</button>
+      <button type="button" data-lang="it" lang="it" aria-pressed="true" class="on">IT</button>
+    </div>
   </header>
   <main class="privacy-page wrap">
     <a class="back-link" href="/">← Torna alla home</a>
-    <article aria-label="Privacy Policy">
+    <article aria-label="Privacy Policy" lang="it" data-policy="it">
     <h1>PRIVACY POLICY</h1>
     <p>Informativa sul trattamento dei dati personali ai sensi dell&#39;art. 13 del Regolamento UE 2016/679 (GDPR)</p>
     <h2>1. Titolare del trattamento</h2>
@@ -55,10 +59,87 @@ import Layout from '../layouts/Layout.astro';
     <p>La presente informativa potr&#224; essere aggiornata in relazione a modifiche normative o alle modalit&#224; di trattamento dei dati personali.</p>
     <p>Ultimo aggiornamento: 16.10.2026</p>
     </article>
+    <article aria-label="Privacy Policy" lang="en" data-policy="en" hidden>
+      <h1>PRIVACY POLICY</h1>
+      <p>Notice on the processing of personal data pursuant to Article 13 of Regulation (EU) 2016/679 (GDPR)</p>
+      <h2>1. Data controller</h2>
+      <p>The Data Controller is Silvia Anna Zamarripa, with professional offices at Via di Salè 52A, Frascati 00044, who can be contacted at the certified email (PEC) address <a href="mailto:silvia.anna.zamarripa@pec.it">silvia.anna.zamarripa@pec.it</a>.</p>
+      <h2>2. Personal data processed</h2>
+      <p>The following data may be collected and processed through this website:</p>
+      <ul>
+        <li>Identification and contact details (first name, last name, email, telephone number, company) voluntarily provided by users.</li>
+        <li>Information contained in requests for advice or contact.</li>
+        <li>Technical browsing data, such as IP addresses and information about the device used, to the extent necessary for the operation and security of the website.</li>
+      </ul>
+      <h2>3. Purposes and legal bases of processing</h2>
+      <p>Personal data is processed to:</p>
+      <ul>
+        <li>Respond to requests for information and advice (Article 6(1)(b) GDPR, where this involves steps taken at the data subject's request prior to entering into a contract).</li>
+        <li>Manage any professional and contractual relationships (Article 6(1)(b) GDPR).</li>
+        <li>Comply with legal, administrative and tax obligations (Article 6(1)(c) GDPR).</li>
+        <li>Ensure the security and proper operation of the website, on the basis of the Data Controller's legitimate interest (Article 6(1)(f) GDPR).</li>
+      </ul>
+      <h2>4. Processing methods</h2>
+      <p>Data is processed using electronic and online tools, in accordance with the principles of lawfulness, fairness, transparency, data minimisation and security set out in the GDPR.</p>
+      <h2>5. Provision of data</h2>
+      <p>Providing the data requested to obtain information or advisory services is optional, but failure to provide the necessary data may prevent us from responding to requests or providing services.</p>
+      <h2>6. Data recipients</h2>
+      <p>Data may be processed by providers of technical, hosting and email services, as well as appointed professionals, to the extent necessary for the stated purposes and in compliance with applicable law.</p>
+      <p>Data will not be publicly disseminated.</p>
+      <h2>7. Data retention</h2>
+      <p>Data relating to contact requests will be retained for a maximum of [12 months] after the request has been concluded, unless there are justified grounds for further retention.</p>
+      <p>Data relating to professional relationships will be retained for as long as necessary to manage those relationships and subsequently in accordance with legal obligations.</p>
+      <p>Technical browsing data will be retained for a maximum of one year.</p>
+      <h2>8. International data transfers</h2>
+      <p>Data is processed only within the EU.</p>
+      <p>Where transfers become necessary in connection with relationships being established, they will be covered by specific subsequent policies.</p>
+      <h2>9. Data subjects' rights</h2>
+      <p>Data subjects may, in the circumstances provided for in Articles 15–22 of the GDPR, exercise their rights of access, rectification, erasure, restriction of processing, objection and data portability.</p>
+      <p>Requests may be sent to the Data Controller's email address.</p>
+      <p>Data subjects also have the right to lodge a complaint with the Italian Data Protection Authority (www.garanteprivacy.it).</p>
+      <h2>10. Cookies</h2>
+      <p>The website uses [only technical cookies necessary for its operation / specify any additional cookies and tracking tools actually used].</p>
+      <p>If non-technical cookies or tracking tools are used, the relevant information will be provided and, where necessary, prior consent will be requested.</p>
+      <h2>11. Updates</h2>
+      <p>This notice may be updated to reflect changes in legislation or in the way personal data is processed.</p>
+      <p>Last updated: 16 October 2026</p>
+    </article>
   </main>
 </Layout>
 
+<script>
+  function setPolicyLanguage(language: string) {
+    const lang = language === 'it' ? 'it' : 'en';
+    document.documentElement.lang = lang;
+    document.querySelectorAll<HTMLElement>('[data-policy]').forEach(article => {
+      article.hidden = article.dataset.policy !== lang;
+    });
+    document.querySelectorAll<HTMLButtonElement>('.lang-switch button').forEach(button => {
+      const active = button.dataset.lang === lang;
+      button.classList.toggle('on', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    const back = document.querySelector<HTMLAnchorElement>('.back-link');
+    if (back) back.textContent = lang === 'it' ? '← Torna alla home' : '← Back to home';
+    document.querySelector('.brand')?.setAttribute('aria-label', lang === 'it' ? 'Purpose Bridge — Torna alla home' : 'Purpose Bridge — Back to home');
+    document.querySelector('.lang-switch')?.setAttribute('aria-label', lang === 'it' ? 'Lingua' : 'Language');
+    try { localStorage.setItem('pb-lang', lang); } catch {}
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('.lang-switch button').forEach(button => {
+    button.addEventListener('click', () => setPolicyLanguage(button.dataset.lang || 'en'));
+  });
+  let saved: string | null = null;
+  try { saved = localStorage.getItem('pb-lang'); } catch {}
+  const browserLanguage = (navigator.language || 'en').toLowerCase().startsWith('it') ? 'it' : 'en';
+  setPolicyLanguage(saved === 'it' || saved === 'en' ? saved : browserLanguage);
+</script>
+
 <style>
+  @media (max-width: 520px) {
+    header { padding-bottom: 50px; }
+    .lang-switch { top: auto; bottom: 10px; right: 50%; transform: translateX(50%); }
+  }
   .privacy-page { max-width: 860px; padding-top: 36px; padding-bottom: 64px; }
   .back-link { display: inline-block; margin-bottom: 32px; }
   a { color: var(--navy); text-underline-offset: 4px; }
