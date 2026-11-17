@@ -1,0 +1,30 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p>© {year} Purpose Bridge</p>
+    <a href="/privacy-policy/" aria-current={Astro.url.pathname.replace(/\/$/, '') === '/privacy-policy' ? 'page' : undefined}>Privacy Policy</a>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--navy-deep);
+    color: var(--paper);
+    border-top: 1px solid rgba(212, 175, 55, .35);
+    padding: 26px 0;
+    font-size: 14px;
+  }
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 28px;
+  }
+  a { color: var(--sand); text-underline-offset: 4px; }
+  a:hover { color: #fff; }
+  a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
+</style>

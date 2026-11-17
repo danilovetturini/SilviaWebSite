@@ -649,7 +649,7 @@
   @media (hover: none) and (pointer: coarse){
     .menu-wrap{display:none;}
     .bottom-nav{display:flex;}
-    body{padding-bottom:74px;}
+    body:has(.bottom-nav){padding-bottom:calc(90px + env(safe-area-inset-bottom, 0px));}
   }
   /* a narrow computer window keeps the dropdown, showing just the icon */
   @media (hover: hover) and (max-width:640px){
